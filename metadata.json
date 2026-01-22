@@ -1,0 +1,8 @@
+{
+  "name": "LearnEye - Professional Adaptive Learning",
+  "description": "A world-class adaptive learning platform featuring structured lesson delivery, gamified progress tracking, and an interactive AI tutor powered by Gemini.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
