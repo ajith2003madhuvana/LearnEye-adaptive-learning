@@ -1,11 +1,11 @@
-
 import { GoogleGenAI, Type } from "@google/genai";
-import { LessonPart, QuizQuestion, Persona } from "../types";
+import { Persona } from "../types";
+
+// Standard way to access API_KEY in this environment
+const getApiKey = () => process.env.API_KEY || '';
 
 export const generateCourseContent = async (topic: string, persona: Persona, language: string) => {
-  // Always use const ai = new GoogleGenAI({apiKey: process.env.API_KEY}); as per guidelines.
-  // Obtain API key exclusively from process.env.API_KEY.
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const ai = new GoogleGenAI({ apiKey: getApiKey() });
   
   const response = await ai.models.generateContent({
     model: 'gemini-3-pro-preview',
@@ -84,7 +84,6 @@ export const generateCourseContent = async (topic: string, persona: Persona, lan
   });
 
   try {
-    // Access response.text property directly.
     const text = response.text;
     return text ? JSON.parse(text) : null;
   } catch (e) {
@@ -97,8 +96,7 @@ export const getTutorResponse = async (
   message: string, 
   context: { topic: string, persona: Persona, language: string, history: { role: 'user' | 'model', text: string }[] }
 ) => {
-  // Always use const ai = new GoogleGenAI({apiKey: process.env.API_KEY}); right before the API call.
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const ai = new GoogleGenAI({ apiKey: getApiKey() });
   
   const chat = ai.chats.create({
     model: 'gemini-3-flash-preview',
@@ -114,6 +112,5 @@ export const getTutorResponse = async (
   });
 
   const result = await chat.sendMessage({ message });
-  // Access result.text property directly.
   return result.text;
 };
