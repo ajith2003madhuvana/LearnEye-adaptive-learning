@@ -1,13 +1,10 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { Persona } from "../types";
 
-// Standard way to access API_KEY in this environment
-const getApiKey = () => process.env.API_KEY || '';
-
 export const generateCourseContent = async (topic: string, persona: Persona, language: string) => {
-  const ai = new GoogleGenAI({ apiKey: getApiKey() });
+  // Creating instance directly before call to ensure proper API key injection as per system instructions
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   
-  // Using gemini-3-flash-preview for much faster generation while maintaining quality
   const response = await ai.models.generateContent({
     model: 'gemini-3-flash-preview',
     contents: `Act as a world-class curriculum designer. Generate a production-grade adaptive learning path for the topic "${topic}" in the language: ${language}.
@@ -98,7 +95,8 @@ export const getTutorResponse = async (
   message: string, 
   context: { topic: string, persona: Persona, language: string, history: { role: 'user' | 'model', text: string }[] }
 ) => {
-  const ai = new GoogleGenAI({ apiKey: getApiKey() });
+  // Creating instance directly before call to ensure proper API key injection as per system instructions
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   
   const chat = ai.chats.create({
     model: 'gemini-3-flash-preview',
