@@ -1,10 +1,9 @@
-
 import { GoogleGenAI, Type } from "@google/genai";
 import { Persona } from "../types";
 
 export const generateCourseContent = async (topic: string, persona: Persona, language: string) => {
-  // Use process.env.API_KEY as per strict SDK guidelines for this environment.
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  // FIX: Vite requires import.meta.env with VITE_ prefix
+  const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
   
   const response = await ai.models.generateContent({
     model: 'gemini-3-flash-preview',
@@ -33,7 +32,7 @@ export const generateCourseContent = async (topic: string, persona: Persona, lan
       responseSchema: {
         type: Type.OBJECT,
         properties: {
-          visualKeyword: { type: Type.STRING, description: "One English keyword for a background image" },
+          visualKeyword: { type: Type.STRING },
           modules: {
             type: Type.ARRAY,
             items: {
@@ -97,7 +96,8 @@ export const getTutorResponse = async (
   message: string, 
   context: { topic: string, persona: Persona, language: string, history: { role: 'user' | 'model', text: string }[] }
 ) => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  // FIX: Same API key fix here
+  const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
   
   const chat = ai.chats.create({
     model: 'gemini-3-flash-preview',
