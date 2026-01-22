@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { UserProfile, Course, Module, LessonPart, QuizQuestion } from '../types';
 import { Icons, COLORS } from '../constants';
@@ -14,18 +13,35 @@ interface DashboardProps {
   onCourseUpdate: (course: Course) => void;
 }
 
+const LOADING_STATUSES = [
+  "Analyzing your learning goals...",
+  "Architecting modular learning path...",
+  "Synthesizing real-world examples...",
+  "Drafting interactive challenges...",
+  "Finalizing your personalized workspace..."
+];
+
 export const Dashboard: React.FC<DashboardProps> = ({ user, setUser, initialCourse, onCourseUpdate }) => {
   const [course, setCourse] = useState<Course | null>(initialCourse);
   const [activeModuleIndex, setActiveModuleIndex] = useState(0);
   const [view, setView] = useState<'roadmap' | 'lesson' | 'quiz' | 'analysis'>('roadmap');
   const [loading, setLoading] = useState(!initialCourse);
+  const [loadingStatusIdx, setLoadingStatusIdx] = useState(0);
   const [quizResults, setQuizResults] = useState<{ score: number, answers: any[] } | null>(null);
   
   const [sessionPoints, setSessionPoints] = useState<{name: string, xp: number}[]>([]);
 
   useEffect(() => {
     setSessionPoints([{ name: 'Start', xp: user.xp }]);
-  }, []);
+    
+    // Status sequencer for loading screen
+    if (loading) {
+      const interval = setInterval(() => {
+        setLoadingStatusIdx(prev => (prev + 1) % LOADING_STATUSES.length);
+      }, 3500);
+      return () => clearInterval(interval);
+    }
+  }, [loading]);
 
   const performanceData = useMemo(() => {
     if (sessionPoints.length < 2) {
@@ -99,9 +115,25 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, setUser, initialCour
     return (
       <div className="fixed inset-0 flex flex-col items-center justify-center p-8 text-center bg-[#0f172a] z-[1000]">
         <div className="animate-float mb-10"><Logo size="lg" /></div>
-        <div className="space-y-4 max-w-lg">
-          <h2 className="text-3xl font-black text-white tracking-tighter animate-pulse">Designing Your Personalized Path...</h2>
-          <p className="text-indigo-400 text-lg font-bold italic">"Preparing a custom curriculum for {user.goal} just for you, {user.name}."</p>
+        <div className="space-y-6 max-w-lg">
+          <div className="space-y-2">
+            <h2 className="text-3xl font-black text-white tracking-tighter">
+              Designing Your Personalized Path...
+            </h2>
+            <div className="flex justify-center space-x-1">
+               <div className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+               <div className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+               <div className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-bounce"></div>
+            </div>
+          </div>
+          <div className="h-8">
+            <p className="text-indigo-400 text-lg font-bold italic animate-in fade-in slide-in-from-bottom-2 duration-1000 key={loadingStatusIdx}">
+              "{LOADING_STATUSES[loadingStatusIdx]}"
+            </p>
+          </div>
+          <p className="text-slate-500 text-sm font-medium">
+            Preparing a custom curriculum for <b>{user.goal}</b> in <b>{user.language}</b> just for you, {user.name}.
+          </p>
         </div>
       </div>
     );

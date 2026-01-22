@@ -7,25 +7,27 @@ const getApiKey = () => process.env.API_KEY || '';
 export const generateCourseContent = async (topic: string, persona: Persona, language: string) => {
   const ai = new GoogleGenAI({ apiKey: getApiKey() });
   
+  // Using gemini-3-flash-preview for much faster generation while maintaining quality
   const response = await ai.models.generateContent({
-    model: 'gemini-3-pro-preview',
-    contents: `Generate a production-grade adaptive learning path for the topic "${topic}" in the language: ${language}.
+    model: 'gemini-3-flash-preview',
+    contents: `Act as a world-class curriculum designer. Generate a production-grade adaptive learning path for the topic "${topic}" in the language: ${language}.
     Target Persona: ${persona}.
     
     CONTENT STRUCTURE REQUIREMENTS (Strict):
-    - 4-5 progressive modules.
+    - 4-5 progressive modules from beginner to advanced.
+    - Each module MUST be returned in the user's preferred language (${language}).
     - Each module must follow this structured lesson format:
-      * objective: 🎯 One line objective.
+      * objective: 🎯 One line specific learning objective.
       * keyConcepts: 📌 3-5 bulleted core concepts.
-      * explanationELI5: 🧠 Simple introduction using an analogy.
+      * explanationELI5: 🧠 Simple introduction using a creative analogy.
       * detailedExplanation: 🔍 Point-by-point, easy to scan, progressive (simple to complex) detailed breakdown.
-      * realWorldExample: 🧩 Practical example application.
-      * recap: ✅ Quick 3-bullet recap.
-      * interviewTips: 💼 Job interview insights.
+      * realWorldExample: 🧩 Practical example application in a modern context.
+      * recap: ✅ Quick 3-bullet recap of what was learned.
+      * interviewTips: 💼 Specific job interview insights related to this module.
     
-    - quiz: 5 multiple-choice questions per module.
+    - quiz: 5 high-quality multiple-choice questions per module to validate mastery.
 
-    TONE: Adaptive to persona (${persona}). Supportive and motivational.
+    TONE: Adaptive to persona (${persona}). Supportive, professional, and motivational.
     RESPONSE: STRICT JSON ONLY.`,
     config: {
       responseMimeType: "application/json",
@@ -105,9 +107,21 @@ export const getTutorResponse = async (
       parts: [{ text: h.text }]
     })),
     config: {
-      systemInstruction: `You are LearnEye Buddy, a supportive and motivational AI tutor.
-      Topic: "${context.topic}". Persona: ${context.persona}. Language: ${context.language}.
-      Tone: Supportive, context-aware, non-spoiling (don't give answers, guide instead).`,
+      systemInstruction: `You are LearnEye Buddy, a professional, supportive, and motivational AI tutor.
+      Current Context:
+      - Primary Topic: "${context.topic}"
+      - User Persona: ${context.persona}
+      - Preferred Language: ${context.language}
+      
+      BEHAVIOR RULES:
+      1. Always respond in ${context.language}.
+      2. Tone must adapt to the persona:
+         - Student: Encouraging, simplified, uses analogies.
+         - Professional: Efficient, practical, career-focused.
+         - Curious: Exploratory, philosophical, deep-diving.
+      3. NON-SPOILING: Never give direct answers to quiz-like questions. Instead, guide the user with hints or leading questions.
+      4. Support frustrated learners with empathy and fast learners with challenging insights.
+      5. Keep technical terms accurate but explain them in the context of the user's level.`,
     },
   });
 
