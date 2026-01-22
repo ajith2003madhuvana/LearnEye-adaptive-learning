@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Icons, COLORS } from '../constants';
 import { UserProfile, Course } from '../types';
@@ -12,7 +13,7 @@ interface AITutorSidebarProps {
 export const AITutorSidebar: React.FC<AITutorSidebarProps> = ({ user, course }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<{ role: 'user' | 'model', text: string }[]>([
-    { role: 'model', text: `Hi ${user.name}! 👋 I'm your LearnEye assistant. Stuck on something? I'm here to clarify any doubts about ${course?.topic || 'your studies'} in ${user.language}!` }
+    { role: 'model', text: `Hi ${user.name}! 👋 I'm your LearnEye Buddy. I've designed your learning path for ${course?.topic || 'your chosen topic'}. If any concept feels complex, just ask and I'll break it down for you!` }
   ]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -40,7 +41,7 @@ export const AITutorSidebar: React.FC<AITutorSidebarProps> = ({ user, course }) 
       });
       setMessages(prev => [...prev, { role: 'model', text: response }]);
     } catch (e) {
-      setMessages(prev => [...prev, { role: 'model', text: "I'm having a little trouble connecting. Could you try that again?" }]);
+      setMessages(prev => [...prev, { role: 'model', text: "Apologies, I hit a brief connection snag. Could you repeat that for me?" }]);
     } finally {
       setIsTyping(false);
     }
@@ -48,47 +49,44 @@ export const AITutorSidebar: React.FC<AITutorSidebarProps> = ({ user, course }) 
 
   const formatText = (text: string) => {
     return text.split('\n').map((para, i) => {
-      if (para.trim().startsWith('*') || para.trim().startsWith('-')) {
-        return <li key={i} className="ml-4 mb-1 text-slate-900 font-medium leading-relaxed">{para.trim().substring(1).trim()}</li>;
+      const trimmed = para.trim();
+      if (!trimmed) return <div key={i} className="h-2" />;
+      if (trimmed.startsWith('*') || trimmed.startsWith('-') || trimmed.match(/^\d+\./)) {
+        return <li key={i} className="ml-5 mb-2 list-disc">{trimmed.replace(/^[*-\d.]\s*/, '')}</li>;
       }
-      return <p key={i} className="mb-3 last:mb-0 text-slate-900 font-medium leading-relaxed">{para}</p>;
+      return <p key={i} className="mb-3 last:mb-0 leading-relaxed font-medium">{trimmed}</p>;
     });
   };
 
   return (
     <>
-      {/* Floating Action Button - Clean and unobtrusive */}
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-8 right-8 z-50 p-5 rounded-full shadow-[0_15px_35px_-5px_rgba(8,145,178,0.4)] transition-all duration-300 hover:scale-110 active:scale-95 flex items-center justify-center bg-gradient-to-br from-cyan-600 to-blue-700 text-white border border-white/20"
+          className="fixed bottom-10 right-10 z-[200] p-6 rounded-[2.5rem] shadow-[0_20px_50px_-10px_rgba(79,70,229,0.5)] transition-all duration-300 hover:scale-110 active:scale-95 flex items-center justify-center bg-indigo-600 text-white border border-indigo-400 group overflow-hidden"
         >
-          <Icons.Brain className="w-8 h-8 animate-float" />
-          <div className="absolute -top-1 -right-1 w-4 h-4 bg-rose-500 rounded-full border-2 border-white animate-pulse" />
+          <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+          <Icons.Brain className="w-9 h-9 relative z-10" />
+          <div className="absolute -top-1 -right-1 w-5 h-5 bg-rose-500 rounded-full border-[3px] border-slate-950 animate-pulse" />
         </button>
       )}
 
-      {/* Sidebar Panel */}
-      <div className={`fixed inset-y-0 right-0 z-[100] w-full sm:w-[450px] bg-white shadow-[-25px_0_80px_-20px_rgba(0,0,0,0.3)] transition-transform duration-500 ease-out transform flex flex-col ${
+      <div className={`fixed inset-y-0 right-0 z-[300] w-full sm:w-[500px] bg-slate-950 shadow-[-40px_0_100px_-20px_rgba(0,0,0,0.6)] transition-transform duration-500 ease-out transform flex flex-col border-l border-white/5 ${
         isOpen ? 'translate-x-0' : 'translate-x-full'
       }`}>
         
-        {/* Header - Professional with clear close action */}
-        <div className="p-6 bg-white border-b border-slate-100 flex items-center justify-between shadow-sm">
-          <div className="flex items-center space-x-4">
-            <div className="bg-slate-50 p-2.5 rounded-2xl border border-slate-100">
-               <Logo size="sm" animated={false} />
-            </div>
+        <div className="p-8 bg-slate-900/50 backdrop-blur-3xl border-b border-white/5 flex items-center justify-between">
+          <div className="flex items-center space-x-5">
+            <Logo size="sm" animated={false} />
             <div>
-              <h3 className="font-extrabold text-slate-900 text-lg leading-none">LearnEye Buddy</h3>
-              <p className="text-[10px] uppercase font-black tracking-widest text-cyan-600 mt-1">Intelligent Support</p>
+              <h3 className="font-black text-white text-xl tracking-tight leading-none">Buddy</h3>
+              <p className="text-[10px] uppercase font-black tracking-[0.3em] text-indigo-400 mt-2">Personal AI Tutor</p>
             </div>
           </div>
           
           <button 
             onClick={() => setIsOpen(false)}
-            className="group p-3 hover:bg-slate-100 rounded-2xl text-slate-400 hover:text-rose-500 transition-all duration-200"
-            aria-label="Close Chat"
+            className="p-4 hover:bg-white/5 rounded-2xl text-slate-500 hover:text-white transition-all group"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="group-hover:rotate-90 transition-transform">
               <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -97,63 +95,55 @@ export const AITutorSidebar: React.FC<AITutorSidebarProps> = ({ user, course }) 
           </button>
         </div>
 
-        {/* Chat Messages - High contrast and legible */}
-        <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50/30 scroll-smooth">
+        <div ref={scrollRef} className="flex-1 overflow-y-auto p-8 space-y-8 bg-slate-950/20 custom-scrollbar">
           {messages.map((m, i) => (
-            <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2 duration-400`}>
-              <div className={`max-w-[85%] p-4 rounded-[1.75rem] text-[15px] shadow-sm ${
+            <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-4 duration-500`}>
+              <div className={`max-w-[85%] p-6 rounded-[2rem] text-[15px] shadow-2xl relative ${
                 m.role === 'user' 
-                ? 'bg-cyan-600 text-white rounded-br-none font-bold shadow-cyan-900/10' 
-                : 'bg-white text-slate-900 rounded-bl-none border border-slate-200 shadow-slate-200/50'
+                ? 'bg-indigo-600 text-white rounded-br-none font-bold' 
+                : 'bg-slate-900/80 text-slate-200 rounded-bl-none border border-white/5'
               }`}>
-                {m.role === 'model' ? formatText(m.text) : m.text}
+                {m.role === 'model' ? <div className="tutor-text">{formatText(m.text)}</div> : m.text}
               </div>
             </div>
           ))}
           {isTyping && (
             <div className="flex justify-start">
-              <div className="bg-white px-5 py-4 rounded-3xl animate-pulse flex space-x-2 border border-slate-100 shadow-sm">
-                <div className="w-2 h-2 bg-cyan-400 rounded-full"></div>
-                <div className="w-2 h-2 bg-cyan-400 rounded-full animation-delay-200"></div>
-                <div className="w-2 h-2 bg-cyan-400 rounded-full animation-delay-400"></div>
+              <div className="bg-slate-900/80 px-6 py-5 rounded-[2rem] border border-white/5 flex space-x-2">
+                <div className="w-2.5 h-2.5 bg-indigo-500 rounded-full animate-bounce" />
+                <div className="w-2.5 h-2.5 bg-indigo-500 rounded-full animate-bounce [animation-delay:0.2s]" />
+                <div className="w-2.5 h-2.5 bg-indigo-500 rounded-full animate-bounce [animation-delay:0.4s]" />
               </div>
             </div>
           )}
         </div>
 
-        {/* Improved Input Area - High Visibility and Clean Layout */}
-        <div className="p-6 bg-white border-t border-slate-100">
-          <div className="relative flex items-center bg-white rounded-3xl border-2 border-slate-200 shadow-sm focus-within:border-cyan-500 focus-within:ring-4 focus-within:ring-cyan-500/5 transition-all duration-200 group overflow-hidden">
+        <div className="p-8 bg-slate-900/50 backdrop-blur-3xl border-t border-white/5">
+          <div className="relative flex items-center bg-slate-950 rounded-[2rem] border-2 border-white/5 focus-within:border-indigo-500 transition-all shadow-inner overflow-hidden">
             <input 
               type="text" 
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-              placeholder="Ask me anything..."
-              className="flex-1 bg-transparent outline-none text-[15px] py-4 pl-6 pr-14 font-bold text-slate-900 placeholder:text-slate-400 placeholder:font-medium"
+              placeholder="Ask a doubt..."
+              className="flex-1 bg-transparent outline-none text-base py-5 pl-8 pr-16 font-bold text-white placeholder:text-slate-600"
             />
             <button 
               onClick={handleSend} 
               disabled={!input.trim() || isTyping}
-              className="absolute right-2 p-3 bg-cyan-600 text-white rounded-2xl hover:bg-cyan-700 disabled:opacity-20 disabled:scale-95 transition-all shadow-lg active:scale-90"
+              className="absolute right-3 p-4 bg-indigo-600 text-white rounded-2xl hover:bg-indigo-500 disabled:opacity-20 transition-all shadow-xl active:scale-90"
             >
               <Icons.Send className="w-5 h-5" />
             </button>
           </div>
-          
-          <div className="mt-4 flex flex-col items-center space-y-2">
-            <p className="text-[10px] text-slate-400 text-center uppercase font-black tracking-[0.2em]">
-              Personalized Insights <span className="text-slate-300">|</span> Powered by Gemini
-            </p>
-          </div>
+          <p className="mt-4 text-[10px] text-slate-600 text-center uppercase font-black tracking-[0.4em]">Adaptive Support Powered by Gemini</p>
         </div>
       </div>
 
-      {/* Backdrop for focus */}
       {isOpen && (
         <div 
           onClick={() => setIsOpen(false)}
-          className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[90] transition-opacity duration-500"
+          className="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-[250] transition-opacity duration-500"
         />
       )}
     </>

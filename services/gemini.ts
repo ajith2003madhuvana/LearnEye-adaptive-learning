@@ -2,36 +2,31 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { LessonPart, QuizQuestion, Persona } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-
 export const generateCourseContent = async (topic: string, persona: Persona, language: string) => {
+  // Always use const ai = new GoogleGenAI({apiKey: process.env.API_KEY}); as per guidelines.
+  // Obtain API key exclusively from process.env.API_KEY.
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  
   const response = await ai.models.generateContent({
     model: 'gemini-3-pro-preview',
-    contents: `Generate an extensive, production-grade adaptive learning path for the topic "${topic}" in the language: ${language}.
-    The learner's persona is: ${persona}.
+    contents: `Generate a production-grade adaptive learning path for the topic "${topic}" in the language: ${language}.
+    Target Persona: ${persona}.
     
-    CONTENT STRUCTURE REQUIREMENTS:
-    1. Provide a 'visualKeyword' for topic imagery.
-    2. 4-5 progressive modules.
-    3. Each module must contain:
-       - id: unique string
-       - title: clear module name
-       - lesson: EXTENSIVE learning content:
-         * objective: 🎯 Clear, simple goal.
-         * keyConcepts: 📌 3-5 foundational concepts.
-         * explanationELI5: 🧠 Simple analogy or story to introduce the concept.
-         * detailedExplanation: 🔍 Comprehensive, step-by-step documentation. Use a storytelling approach where possible. Provide enough detail that a complete beginner feels guided through every micro-step.
-         * realWorldExample: 🧩 A practical, relatable scenario.
-         * recap: ✅ 3 summary points.
-         * interviewTips: 💼 Object containing:
-           - howToAnswer: Guide on explaining this in a job interview.
-           - expectedQuestions: 3 likely interview questions.
-       - quiz: 5 SIMPLE, VERY EASY beginner-level multiple-choice questions with 'question', 'options', 'correctIndex', and 'explanation'.
+    CONTENT STRUCTURE REQUIREMENTS (Strict):
+    - 4-5 progressive modules.
+    - Each module must follow this structured lesson format:
+      * objective: 🎯 One line objective.
+      * keyConcepts: 📌 3-5 bulleted core concepts.
+      * explanationELI5: 🧠 Simple introduction using an analogy.
+      * detailedExplanation: 🔍 Point-by-point, easy to scan, progressive (simple to complex) detailed breakdown.
+      * realWorldExample: 🧩 Practical example application.
+      * recap: ✅ Quick 3-bullet recap.
+      * interviewTips: 💼 Job interview insights.
+    
+    - quiz: 5 multiple-choice questions per module.
 
-    TONE: Friendly, supportive, and extremely clear.
-    Always respond in ${language}.
-
-    Format the response strictly as JSON.`,
+    TONE: Adaptive to persona (${persona}). Supportive and motivational.
+    RESPONSE: STRICT JSON ONLY.`,
     config: {
       responseMimeType: "application/json",
       responseSchema: {
@@ -89,6 +84,7 @@ export const generateCourseContent = async (topic: string, persona: Persona, lan
   });
 
   try {
+    // Access response.text property directly.
     const text = response.text;
     return text ? JSON.parse(text) : null;
   } catch (e) {
@@ -101,15 +97,23 @@ export const getTutorResponse = async (
   message: string, 
   context: { topic: string, persona: Persona, language: string, history: { role: 'user' | 'model', text: string }[] }
 ) => {
+  // Always use const ai = new GoogleGenAI({apiKey: process.env.API_KEY}); right before the API call.
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  
   const chat = ai.chats.create({
     model: 'gemini-3-flash-preview',
+    history: context.history.map(h => ({
+      role: h.role,
+      parts: [{ text: h.text }]
+    })),
     config: {
-      systemInstruction: `You are LearnEye, a world-class adaptive tutor.
-      Topic: "${context.topic}". Language: ${context.language}. Persona: ${context.persona}.
-      Be friendly, supportive, and guide the user with stories and simple explanations. Never give answers directly.`,
+      systemInstruction: `You are LearnEye Buddy, a supportive and motivational AI tutor.
+      Topic: "${context.topic}". Persona: ${context.persona}. Language: ${context.language}.
+      Tone: Supportive, context-aware, non-spoiling (don't give answers, guide instead).`,
     },
   });
 
   const result = await chat.sendMessage({ message });
+  // Access result.text property directly.
   return result.text;
 };

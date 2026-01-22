@@ -2,14 +2,19 @@
 import React from 'react';
 
 export const COLORS = {
-  primary: '#22d3ee', // Cyan 400
-  secondary: '#38bdf8', // Sky 400
+  primary: '#4F46E5', // Indigo 600
+  secondary: '#9333EA', // Purple 600
   accent: '#fbbf24', // Amber 400
-  success: '#34d399', // Emerald 400
-  error: '#f87171',
-  text: '#f1f5f9',
-  bg: '#0f172a',
-  white: '#ffffff',
+  success: '#10B981', // Emerald 500
+  warning: '#F59E0B', // Amber 500
+  error: '#EF4444', // Red 600
+  text: {
+    primary: '#F9FAFB',
+    secondary: '#D1D5DB',
+    muted: '#9CA3AF',
+  },
+  bg: '#0F172A',
+  white: '#FFFFFF',
 };
 
 export const Icons = {
@@ -68,17 +73,17 @@ export const Icons = {
 export const PERSONA_CONFIG = {
   Student: {
     description: 'Building foundation for my future.',
-    tone: 'Encouraging, clear, and foundational.',
+    tone: 'Encouraging, clear explanations, relatable analogies.',
     icon: '🎓'
   },
   Professional: {
     description: 'Upskilling for career growth.',
-    tone: 'Efficient, practical, and industry-focused.',
+    tone: 'Efficient, practical, industry-focused, high-utility.',
     icon: '💼'
   },
   'Curious Learner': {
     description: 'Learning for the joy of it.',
-    tone: 'Exploratory, detailed, and philosophical.',
+    tone: 'Exploratory, philosophical, connecting big ideas.',
     icon: '🌱'
   }
 };
