@@ -1,8 +1,8 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { Logo } from './Logo';
 import { Persona, UserProfile } from '../types';
-import { PERSONA_CONFIG, COLORS } from '../constants';
+import { PERSONA_CONFIG } from '../constants';
 
 interface OnboardingProps {
   onComplete: (profile: UserProfile) => void;
@@ -53,15 +53,16 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
             </div>
             <div className="space-y-2">
               <h1 className="text-4xl font-extrabold text-white tracking-tight">LearnEye</h1>
-              <p className="text-slate-400 font-medium">Learning that sees your unique journey.</p>
+              <p className="text-slate-400 font-medium">The eye that sees your learning potential.</p>
             </div>
             <div className="space-y-4">
               <input
                 autoFocus
                 type="text"
-                placeholder="What's your name?"
+                placeholder="How should we address you?"
                 value={profile.name}
                 onChange={(e) => setProfile({ ...profile, name: e.target.value })}
+                onKeyDown={(e) => e.key === 'Enter' && profile.name?.trim() && nextStep()}
                 className="w-full px-8 py-5 bg-slate-900/50 border-2 border-white/5 rounded-2xl focus:border-indigo-500 outline-none transition-all text-xl font-bold text-center text-white"
               />
               <button
@@ -69,7 +70,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                 disabled={!profile.name?.trim()}
                 className="w-full py-5 bg-indigo-600 hover:bg-indigo-500 text-white font-black text-lg rounded-2xl shadow-xl shadow-indigo-600/20 transition-all disabled:opacity-20 active:scale-95"
               >
-                Start My Journey ✨
+                Enter the Matrix ✨
               </button>
             </div>
           </div>
@@ -78,10 +79,10 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
         {step === 2 && (
           <div className="space-y-8 animate-in fade-in slide-in-from-right-8">
             <div className="space-y-2">
-              <h2 className="text-3xl font-extrabold text-white">Hi {profile.name}! 👋</h2>
-              <p className="text-slate-400 font-medium">Which language do you prefer to learn in?</p>
+              <h2 className="text-3xl font-extrabold text-white">Greetings, {profile.name}! 👋</h2>
+              <p className="text-slate-400 font-medium">Select your preferred interaction language.</p>
             </div>
-            <div className="grid grid-cols-2 gap-3 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+            <div className="grid grid-cols-2 gap-3 max-h-[350px] overflow-y-auto pr-2 custom-scrollbar">
               {LANGUAGES.map(l => (
                 <button
                   key={l.name}
@@ -102,8 +103,8 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
         {step === 3 && (
           <div className="space-y-8 animate-in fade-in slide-in-from-right-8">
             <div className="space-y-2 text-center">
-              <h2 className="text-3xl font-extrabold text-white tracking-tight">Personalize Your Tone</h2>
-              <p className="text-slate-400 font-medium">How should our AI tutor guide you?</p>
+              <h2 className="text-3xl font-extrabold text-white tracking-tight">Define Your Persona</h2>
+              <p className="text-slate-400 font-medium">Our tutor adapts its logic to your needs.</p>
             </div>
             <div className="space-y-4">
               {Object.entries(PERSONA_CONFIG).map(([key, config]) => (
@@ -129,18 +130,18 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
         {step === 4 && (
           <div className="space-y-8 animate-in fade-in slide-in-from-right-8">
             <div className="space-y-2">
-              <h2 className="text-3xl font-extrabold text-white">The Final Step 🎯</h2>
-              <p className="text-slate-400 font-medium">What topic would you like to master today?</p>
+              <h2 className="text-3xl font-extrabold text-white">Target Objective 🎯</h2>
+              <p className="text-slate-400 font-medium">What knowledge base shall we architect today?</p>
             </div>
             <div className="space-y-6">
               <textarea
                 value={profile.goal}
                 onChange={(e) => setProfile({ ...profile, goal: e.target.value })}
-                placeholder="e.g. Python for Beginners, Modern History, Guitar Essentials..."
-                className="w-full h-40 px-8 py-6 bg-slate-900/50 border-2 border-white/5 rounded-2xl focus:border-indigo-500 outline-none transition-all text-lg font-bold text-white shadow-inner placeholder:text-slate-600"
+                placeholder="e.g. Modern Web Architecture, Classical Music History, Python Mastery..."
+                className="w-full h-40 px-8 py-6 bg-slate-900/50 border-2 border-white/5 rounded-2xl focus:border-indigo-500 outline-none transition-all text-lg font-bold text-white shadow-inner placeholder:text-slate-700"
               />
               <div className="flex flex-wrap gap-2">
-                {['Public Speaking', 'React JS', 'Data Science', 'Financial Literacy'].map(g => (
+                {['Quantum Physics', 'Digital Marketing', 'Stock Trading', 'Philosophy'].map(g => (
                   <button
                     key={g}
                     onClick={() => setProfile({ ...profile, goal: g })}
@@ -155,7 +156,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                 disabled={!profile.goal?.trim()}
                 className="w-full py-6 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-black text-xl rounded-2xl shadow-2xl shadow-indigo-600/20 transition-all hover:scale-[1.02] disabled:opacity-20 active:scale-95"
               >
-                Generate My Path ✨
+                Synthesize Learning Path ✨
               </button>
             </div>
             <button onClick={prevStep} className="text-slate-500 font-bold text-sm hover:text-indigo-400 transition-colors">Go Back</button>

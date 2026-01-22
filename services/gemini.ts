@@ -1,37 +1,39 @@
+
 import { GoogleGenAI, Type } from "@google/genai";
 import { Persona } from "../types";
 
 export const generateCourseContent = async (topic: string, persona: Persona, language: string) => {
-  // Creating instance directly before call to ensure proper API key injection as per system instructions
+  // Use process.env.API_KEY as per strict SDK guidelines for this environment.
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   
   const response = await ai.models.generateContent({
     model: 'gemini-3-flash-preview',
-    contents: `Act as a world-class curriculum designer. Generate a production-grade adaptive learning path for the topic "${topic}" in the language: ${language}.
-    Target Persona: ${persona}.
+    contents: `Act as a world-class educational architect. Create a professional, production-grade learning path for: "${topic}".
+    Target Learner Persona: ${persona}.
+    Language: ${language}.
     
-    CONTENT STRUCTURE REQUIREMENTS (Strict):
-    - 4-5 progressive modules from beginner to advanced.
-    - Each module MUST be returned in the user's preferred language (${language}).
-    - Each module must follow this structured lesson format:
-      * objective: 🎯 One line specific learning objective.
-      * keyConcepts: 📌 3-5 bulleted core concepts.
-      * explanationELI5: 🧠 Simple introduction using a creative analogy.
-      * detailedExplanation: 🔍 Point-by-point, easy to scan, progressive (simple to complex) detailed breakdown.
-      * realWorldExample: 🧩 Practical example application in a modern context.
-      * recap: ✅ Quick 3-bullet recap of what was learned.
-      * interviewTips: 💼 Specific job interview insights related to this module.
+    CONTENT REQUIREMENTS (Strict):
+    - Return exactly 4-5 modules.
+    - All content (titles, explanations, quizzes) MUST be in ${language}.
+    - Use the following lesson structure for each module:
+      * objective: 🎯 One clear learning objective.
+      * keyConcepts: 📌 3-5 core concepts.
+      * explanationELI5: 🧠 Simple analogy/ELI5.
+      * detailedExplanation: 🔍 Comprehensive, point-wise, progressive breakdown.
+      * realWorldExample: 🧩 Practical use case.
+      * recap: 3 ✅ summary points.
+      * interviewTips: 💼 Job interview preparation insights.
     
-    - quiz: 5 high-quality multiple-choice questions per module to validate mastery.
+    - quiz: 5 high-quality multiple-choice questions per module.
 
     TONE: Adaptive to persona (${persona}). Supportive, professional, and motivational.
-    RESPONSE: STRICT JSON ONLY.`,
+    RESPONSE FORMAT: JSON ONLY.`,
     config: {
       responseMimeType: "application/json",
       responseSchema: {
         type: Type.OBJECT,
         properties: {
-          visualKeyword: { type: Type.STRING },
+          visualKeyword: { type: Type.STRING, description: "One English keyword for a background image" },
           modules: {
             type: Type.ARRAY,
             items: {
@@ -86,7 +88,7 @@ export const generateCourseContent = async (topic: string, persona: Persona, lan
     const text = response.text;
     return text ? JSON.parse(text) : null;
   } catch (e) {
-    console.error("Failed to parse course content", e);
+    console.error("Failed to generate course content", e);
     return null;
   }
 };
@@ -95,7 +97,6 @@ export const getTutorResponse = async (
   message: string, 
   context: { topic: string, persona: Persona, language: string, history: { role: 'user' | 'model', text: string }[] }
 ) => {
-  // Creating instance directly before call to ensure proper API key injection as per system instructions
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   
   const chat = ai.chats.create({
@@ -106,20 +107,11 @@ export const getTutorResponse = async (
     })),
     config: {
       systemInstruction: `You are LearnEye Buddy, a professional, supportive, and motivational AI tutor.
-      Current Context:
-      - Primary Topic: "${context.topic}"
-      - User Persona: ${context.persona}
-      - Preferred Language: ${context.language}
-      
-      BEHAVIOR RULES:
+      Rules:
       1. Always respond in ${context.language}.
-      2. Tone must adapt to the persona:
-         - Student: Encouraging, simplified, uses analogies.
-         - Professional: Efficient, practical, career-focused.
-         - Curious: Exploratory, philosophical, deep-diving.
-      3. NON-SPOILING: Never give direct answers to quiz-like questions. Instead, guide the user with hints or leading questions.
-      4. Support frustrated learners with empathy and fast learners with challenging insights.
-      5. Keep technical terms accurate but explain them in the context of the user's level.`,
+      2. Tone: Adapt to ${context.persona}.
+      3. Non-spoiling: Do not give direct answers to quiz questions. Guide the learner.
+      4. Context-aware: Refer to ${context.topic} when appropriate.`,
     },
   });
 
